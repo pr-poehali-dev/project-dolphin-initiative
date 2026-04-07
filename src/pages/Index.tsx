@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Download,
   Shield,
@@ -29,10 +29,174 @@ import {
   ChevronRight,
   Sun,
   Moon,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import Icon from "@/components/ui/icon";
+
+type UploadModalType = "banner" | "avatar" | null;
+
+const UploadModal = ({
+  type,
+  currentImage,
+  onClose,
+  onUpload,
+}: {
+  type: UploadModalType;
+  currentImage: string | null;
+  onClose: () => void;
+  onUpload: (url: string) => void;
+}) => {
+  const [dragging, setDragging] = useState(false);
+  const [preview, setPreview] = useState<string | null>(currentImage);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  if (!type) return null;
+
+  const isBanner = type === "banner";
+
+  const handleFile = (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        {/* Заголовок */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e5e7eb]">
+          <div className="flex items-center gap-2">
+            <Icon name={isBanner ? "Image" : "Camera"} size={18} className="text-[#10A37F]" />
+            <h3 className="text-[#1a1a2e] font-semibold">
+              {isBanner ? "Загрузить баннер" : "Загрузить аватар"}
+            </h3>
+          </div>
+          <button onClick={onClose} className="text-[#6b7280] hover:text-[#1a1a2e] transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Зона drag-and-drop */}
+          <div
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            className={`relative rounded-xl border-2 border-dashed cursor-pointer transition-all overflow-hidden
+              ${dragging
+                ? "border-[#10A37F] bg-[#e8f5f0] scale-[1.01]"
+                : "border-[#d1d5db] hover:border-[#10A37F] hover:bg-[#f0faf7]"
+              }
+              ${isBanner ? "h-36" : "h-44 flex items-center justify-center"}
+            `}
+          >
+            {preview ? (
+              isBanner ? (
+                <img src={preview} alt="banner" className="w-full h-full object-cover" />
+              ) : (
+                <img src={preview} alt="avatar" className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md" />
+              )
+            ) : (
+              <div className={`flex flex-col items-center justify-center gap-3 text-center p-4 ${isBanner ? "h-full" : ""}`}>
+                <div className={`rounded-full flex items-center justify-center ${dragging ? "bg-[#10A37F]" : "bg-[#f3f4f6]"} transition-colors`}
+                  style={{ width: 52, height: 52 }}>
+                  <Upload className={`w-6 h-6 ${dragging ? "text-white" : "text-[#10A37F]"}`} />
+                </div>
+                <div>
+                  <p className="text-[#1a1a2e] font-medium text-sm">
+                    {dragging ? "Отпустите файл..." : "Перетащите файл или нажмите"}
+                  </p>
+                  <p className="text-[#9ca3af] text-xs mt-0.5">PNG, JPG, GIF до 8 МБ</p>
+                </div>
+              </div>
+            )}
+
+            {/* Оверлей при наличии превью */}
+            {preview && (
+              <div className={`absolute inset-0 flex items-center justify-center gap-2 transition-opacity bg-black/40 ${dragging ? "opacity-100" : "opacity-0 hover:opacity-100"}`}>
+                <div className="bg-white/90 text-[#1a1a2e] text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                  <Upload className="w-3.5 h-3.5" />
+                  Заменить
+                </div>
+              </div>
+            )}
+          </div>
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleChange}
+          />
+
+          {/* Рекомендации */}
+          <div className="bg-[#f9fafb] rounded-lg p-3 text-xs text-[#6b7280] space-y-1">
+            {isBanner ? (
+              <>
+                <p>Рекомендуемый размер: <span className="text-[#374151] font-medium">600 × 240 пикселей</span></p>
+                <p>Минимальная ширина: <span className="text-[#374151] font-medium">480 пикселей</span></p>
+              </>
+            ) : (
+              <>
+                <p>Рекомендуемый размер: <span className="text-[#374151] font-medium">256 × 256 пикселей</span></p>
+                <p>Изображение будет обрезано до круга</p>
+              </>
+            )}
+          </div>
+
+          {/* Кнопки */}
+          <div className="flex gap-3 pt-1">
+            {preview && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setPreview(null)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 gap-1.5"
+              >
+                <Trash2 className="w-4 h-4" />
+                Удалить
+              </Button>
+            )}
+            <div className="flex-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+              className="border-[#d1d5db] text-[#374151]"
+            >
+              Отмена
+            </Button>
+            <Button
+              size="sm"
+              disabled={!preview}
+              onClick={() => { if (preview) { onUpload(preview); onClose(); } }}
+              className="bg-[#10A37F] hover:bg-[#0d8f6f] text-white disabled:opacity-40"
+            >
+              Применить
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 type SettingsSection =
   | "profile"
@@ -62,6 +226,9 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
   const [activeMenu, setActiveMenu] = useState<SettingsMenu>("myProfile");
   const [activeSection, setActiveSection] = useState<SettingsSection>("profile");
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [uploadModal, setUploadModal] = useState<UploadModalType>(null);
+  const [bannerImage, setBannerImage] = useState<string | null>(null);
+  const [avatarImage, setAvatarImage] = useState<string | null>(null);
   const [notifications, setNotifications] = useState({
     messages: true,
     mentions: true,
@@ -253,24 +420,53 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-[#374151] mb-2">Баннер профиля</label>
-                    <div className="h-20 bg-gradient-to-r from-[#10A37F] to-[#059669] rounded-xl flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity border-2 border-dashed border-[#10A37F]/40">
-                      <div className="flex items-center gap-2 text-white text-sm">
-                        <Icon name="Image" size={18} />
-                        <span>Загрузить баннер</span>
-                      </div>
+                    <div
+                      onClick={() => setUploadModal("banner")}
+                      className="h-20 rounded-xl flex items-center justify-center cursor-pointer hover:opacity-90 transition-all border-2 border-dashed border-[#10A37F]/40 overflow-hidden relative group"
+                      style={bannerImage ? {} : { background: "linear-gradient(to right, #10A37F, #059669)" }}
+                    >
+                      {bannerImage ? (
+                        <>
+                          <img src={bannerImage} alt="banner" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 text-white text-sm font-medium">
+                              <Icon name="Upload" size={16} />
+                              Изменить
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2 text-white text-sm">
+                          <Icon name="Image" size={18} />
+                          <span>Загрузить баннер</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-[#374151] mb-2">Аватар</label>
                     <div className="flex items-center gap-3">
-                      <div className="w-16 h-16 bg-gradient-to-br from-[#10A37F] to-[#059669] rounded-full flex items-center justify-center cursor-pointer relative">
-                        <span className="text-white text-xl font-bold">М</span>
-                        <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <div
+                        onClick={() => setUploadModal("avatar")}
+                        className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer relative overflow-hidden group"
+                        style={{ background: avatarImage ? "transparent" : "linear-gradient(135deg, #10A37F, #059669)" }}
+                      >
+                        {avatarImage ? (
+                          <img src={avatarImage} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-white text-xl font-bold">М</span>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <Icon name="Camera" size={18} className="text-white" />
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" className="border-[#10A37F] text-[#10A37F] hover:bg-[#e8f5f0]">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setUploadModal("avatar")}
+                        className="border-[#10A37F] text-[#10A37F] hover:bg-[#e8f5f0]"
+                      >
                         Изменить фото
                       </Button>
                     </div>
@@ -323,12 +519,17 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
                   <label className="block text-sm font-medium text-[#374151] mb-3">Предпросмотр</label>
                   <div className="bg-white rounded-xl border border-[#e5e7eb] overflow-hidden shadow-sm">
                     {/* Баннер */}
-                    <div className="h-16 bg-gradient-to-r from-[#10A37F] to-[#059669]"></div>
+                    <div className="h-16 overflow-hidden" style={{ background: bannerImage ? "transparent" : "linear-gradient(to right, #10A37F, #059669)" }}>
+                      {bannerImage && <img src={bannerImage} alt="banner" className="w-full h-full object-cover" />}
+                    </div>
                     <div className="px-4 pb-4">
                       {/* Аватар */}
                       <div className="relative -mt-8 mb-3 w-fit">
-                        <div className="w-16 h-16 bg-gradient-to-br from-[#10A37F] to-[#059669] rounded-full border-4 border-white flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">М</span>
+                        <div className="w-16 h-16 rounded-full border-4 border-white overflow-hidden flex items-center justify-center" style={{ background: avatarImage ? "transparent" : "linear-gradient(135deg, #10A37F, #059669)" }}>
+                          {avatarImage
+                            ? <img src={avatarImage} alt="avatar" className="w-full h-full object-cover" />
+                            : <span className="text-white font-bold text-lg">М</span>
+                          }
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#10A37F] border-2 border-white rounded-full"></div>
                       </div>
@@ -380,6 +581,15 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
+      <UploadModal
+        type={uploadModal}
+        currentImage={uploadModal === "banner" ? bannerImage : avatarImage}
+        onClose={() => setUploadModal(null)}
+        onUpload={(url) => {
+          if (uploadModal === "banner") setBannerImage(url);
+          else setAvatarImage(url);
+        }}
+      />
       {/* Шапка настроек */}
       <div className="h-14 bg-white border-b border-[#e5e7eb] flex items-center px-6 gap-4 shrink-0">
         <div className="flex items-center gap-2">
