@@ -268,36 +268,13 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
     }
 
     return (
-      <div className="flex-1 flex flex-col">
-        {/* Подменю внутри настроек */}
-        <div className="border-b border-[#e5e7eb] px-6 pt-4">
-          <div className="flex gap-1">
-            {[
-              { id: "profile" as SettingsSection, label: "Профиль" },
-              { id: "notifications" as SettingsSection, label: "Уведомления" },
-              { id: "appearance" as SettingsSection, label: "Тема" },
-              { id: "profileCard" as SettingsSection, label: "Карточка профиля" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSection(tab.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
-                  activeSection === tab.id
-                    ? "text-[#10A37F] border-b-2 border-[#10A37F]"
-                    : "text-[#6b7280] hover:text-[#1a1a2e]"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-6 space-y-10 max-w-2xl">
 
-        <div className="flex-1 overflow-y-auto p-6">
           {/* ПРОФИЛЬ */}
-          {activeSection === "profile" && (
-            <div className="max-w-xl space-y-5">
-              <h2 className="text-[#1a1a2e] font-bold text-xl">Мой профиль</h2>
+          <section>
+            <h2 className="text-[#1a1a2e] font-bold text-lg mb-4 pb-2 border-b border-[#e5e7eb]">Мой профиль</h2>
+            <div className="space-y-4">
               {[
                 { label: "Логин", field: "login" as keyof typeof profile },
                 { label: "Никнейм", field: "nickname" as keyof typeof profile },
@@ -337,12 +314,12 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
                 Сохранить изменения
               </Button>
             </div>
-          )}
+          </section>
 
           {/* УВЕДОМЛЕНИЯ */}
-          {activeSection === "notifications" && (
-            <div className="max-w-xl space-y-5">
-              <h2 className="text-[#1a1a2e] font-bold text-xl">Уведомления</h2>
+          <section>
+            <h2 className="text-[#1a1a2e] font-bold text-lg mb-4 pb-2 border-b border-[#e5e7eb]">Уведомления</h2>
+            <div className="space-y-3">
               {[
                 { key: "messages" as keyof typeof notifications, label: "Личные сообщения", desc: "Уведомления при получении новых сообщений" },
                 { key: "mentions" as keyof typeof notifications, label: "Упоминания", desc: "Уведомления при упоминании вашего имени" },
@@ -362,60 +339,41 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
                 </div>
               ))}
             </div>
-          )}
+          </section>
 
           {/* ТЕМА */}
-          {activeSection === "appearance" && (
-            <div className="max-w-xl space-y-5">
-              <h2 className="text-[#1a1a2e] font-bold text-xl">Выбор темы</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={() => setTheme("light")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    theme === "light"
-                      ? "border-[#10A37F] bg-[#e8f5f0]"
-                      : "border-[#e5e7eb] bg-white hover:border-[#10A37F]/40"
-                  }`}
-                >
-                  <div className="w-10 h-10 bg-[#f3f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Icon name="Sun" size={22} className="text-[#f59e0b]" />
-                  </div>
-                  <div className={`text-sm font-semibold ${theme === "light" ? "text-[#10A37F]" : "text-[#374151]"}`}>
-                    Светлая
-                  </div>
-                  <div className="text-xs text-[#6b7280] mt-1">Яркий и чистый интерфейс</div>
-                  {theme === "light" && (
-                    <div className="mt-2 text-xs text-[#10A37F] font-medium">✓ Активна</div>
-                  )}
-                </button>
-                <button
-                  onClick={() => setTheme("dark")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    theme === "dark"
-                      ? "border-[#10A37F] bg-[#e8f5f0]"
-                      : "border-[#e5e7eb] bg-white hover:border-[#10A37F]/40"
-                  }`}
-                >
-                  <div className="w-10 h-10 bg-[#1a1a2e] rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Icon name="Moon" size={22} className="text-[#818cf8]" />
-                  </div>
-                  <div className={`text-sm font-semibold ${theme === "dark" ? "text-[#10A37F]" : "text-[#374151]"}`}>
-                    Тёмная
-                  </div>
-                  <div className="text-xs text-[#6b7280] mt-1">Комфорт для глаз ночью</div>
-                  {theme === "dark" && (
-                    <div className="mt-2 text-xs text-[#10A37F] font-medium">✓ Активна</div>
-                  )}
-                </button>
-              </div>
+          <section>
+            <h2 className="text-[#1a1a2e] font-bold text-lg mb-4 pb-2 border-b border-[#e5e7eb]">Выбор темы</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setTheme("light")}
+                className={`p-4 rounded-xl border-2 transition-all ${theme === "light" ? "border-[#10A37F] bg-[#e8f5f0]" : "border-[#e5e7eb] bg-white hover:border-[#10A37F]/40"}`}
+              >
+                <div className="w-10 h-10 bg-[#f3f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Icon name="Sun" size={22} className="text-[#f59e0b]" />
+                </div>
+                <div className={`text-sm font-semibold ${theme === "light" ? "text-[#10A37F]" : "text-[#374151]"}`}>Светлая</div>
+                <div className="text-xs text-[#6b7280] mt-1">Яркий и чистый интерфейс</div>
+                {theme === "light" && <div className="mt-2 text-xs text-[#10A37F] font-medium">✓ Активна</div>}
+              </button>
+              <button
+                onClick={() => setTheme("dark")}
+                className={`p-4 rounded-xl border-2 transition-all ${theme === "dark" ? "border-[#10A37F] bg-[#e8f5f0]" : "border-[#e5e7eb] bg-white hover:border-[#10A37F]/40"}`}
+              >
+                <div className="w-10 h-10 bg-[#1a1a2e] rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <Icon name="Moon" size={22} className="text-[#818cf8]" />
+                </div>
+                <div className={`text-sm font-semibold ${theme === "dark" ? "text-[#10A37F]" : "text-[#374151]"}`}>Тёмная</div>
+                <div className="text-xs text-[#6b7280] mt-1">Комфорт для глаз ночью</div>
+                {theme === "dark" && <div className="mt-2 text-xs text-[#10A37F] font-medium">✓ Активна</div>}
+              </button>
             </div>
-          )}
+          </section>
 
           {/* КАРТОЧКА ПРОФИЛЯ */}
-          {activeSection === "profileCard" && (
-            <div className="max-w-2xl">
-              <h2 className="text-[#1a1a2e] font-bold text-xl mb-5">Карточка профиля</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <section className="pb-8">
+            <h2 className="text-[#1a1a2e] font-bold text-lg mb-4 pb-2 border-b border-[#e5e7eb]">Карточка профиля</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Редактор */}
                 <div className="space-y-4">
                   <div>
@@ -565,15 +523,15 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-5">
-                <Button className="bg-[#10A37F] hover:bg-[#0d8f6f] text-white px-6 py-2 rounded-lg text-sm font-medium">
-                  Сохранить карточку
-                </Button>
-              </div>
             </div>
-          )}
+
+            <div className="mt-5">
+              <Button className="bg-[#10A37F] hover:bg-[#0d8f6f] text-white px-6 py-2 rounded-lg text-sm font-medium">
+                Сохранить карточку
+              </Button>
+            </div>
+          </section>
+
         </div>
       </div>
     );
