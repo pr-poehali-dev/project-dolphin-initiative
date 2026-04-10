@@ -27,6 +27,7 @@ import {
   Link,
   Star,
   ChevronRight,
+  ChevronLeft,
   Sun,
   Moon,
   Upload,
@@ -229,6 +230,7 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
   const [uploadModal, setUploadModal] = useState<UploadModalType>(null);
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
+  const [showPayments, setShowPayments] = useState(false);
   const [notifications, setNotifications] = useState({
     messages: true,
     mentions: true,
@@ -251,6 +253,94 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
   });
 
   const renderContent = () => {
+    if (activeMenu === "subscriptions" && showPayments) {
+      const transactions = [
+        { id: "INV-0041", date: "15 апр 2026", amount: "690 ₽", plan: "Pro", status: "ok", method: "Visa •• 4242" },
+        { id: "INV-0040", date: "15 мар 2026", amount: "690 ₽", plan: "Pro", status: "ok", method: "Visa •• 4242" },
+        { id: "INV-0039", date: "15 фев 2026", amount: "690 ₽", plan: "Pro", status: "ok", method: "Visa •• 4242" },
+        { id: "INV-0038", date: "15 янв 2026", amount: "690 ₽", plan: "Pro", status: "ok", method: "Mastercard •• 9871" },
+        { id: "INV-0037", date: "15 дек 2025", amount: "690 ₽", plan: "Pro", status: "fail", method: "Mastercard •• 9871" },
+        { id: "INV-0036", date: "15 дек 2025", amount: "690 ₽", plan: "Pro", status: "ok", method: "Mastercard •• 9871" },
+        { id: "INV-0035", date: "15 ноя 2025", amount: "0 ₽", plan: "Бесплатный", status: "ok", method: "—" },
+      ];
+
+      return (
+        <div className="flex-1 overflow-y-auto p-6 max-w-2xl">
+          {/* Назад */}
+          <button
+            onClick={() => setShowPayments(false)}
+            className="flex items-center gap-2 text-[#10A37F] text-sm font-medium mb-6 hover:opacity-80 transition-opacity"
+          >
+            <Icon name="ChevronLeft" size={18} />
+            Назад к подпискам
+          </button>
+
+          <h2 className="text-[#1a1a2e] font-bold text-xl mb-6">История платежей</h2>
+
+          {/* Карточка карты */}
+          <div className="mb-6 p-4 bg-[#f9fafb] rounded-xl border border-[#e5e7eb] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white rounded-lg border border-[#e5e7eb] flex items-center justify-center">
+                <Icon name="CreditCard" size={18} className="text-[#374151]" />
+              </div>
+              <div>
+                <div className="text-sm font-medium text-[#1a1a2e]">Visa •• 4242</div>
+                <div className="text-xs text-[#6b7280]">Основной способ оплаты</div>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="border-[#d1d5db] text-[#374151] text-xs">
+              Сменить карту
+            </Button>
+          </div>
+
+          {/* Таблица */}
+          <div className="rounded-xl border border-[#e5e7eb] overflow-hidden">
+            {/* Заголовок таблицы */}
+            <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3 bg-[#f9fafb] border-b border-[#e5e7eb] text-xs font-medium text-[#6b7280]">
+              <span>Дата</span>
+              <span>Номер</span>
+              <span>План</span>
+              <span>Сумма</span>
+              <span>Статус</span>
+            </div>
+
+            {transactions.map((t, i) => (
+              <div
+                key={t.id}
+                className={`grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3.5 items-center text-sm border-b border-[#f3f4f6] last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-[#fafafa]"}`}
+              >
+                <div>
+                  <div className="text-[#1a1a2e] font-medium">{t.date}</div>
+                  <div className="text-[#9ca3af] text-xs mt-0.5">{t.method}</div>
+                </div>
+                <span className="text-[#6b7280] text-xs font-mono">{t.id}</span>
+                <span className="text-[#374151]">{t.plan}</span>
+                <span className="text-[#1a1a2e] font-semibold">{t.amount}</span>
+                <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+                  t.status === "ok"
+                    ? "bg-[#e8f5f0] text-[#10A37F]"
+                    : "bg-red-50 text-red-500"
+                }`}>
+                  {t.status === "ok" ? "✓ Оплачено" : "✗ Ошибка"}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Отмена подписки */}
+          <div className="mt-6 p-4 rounded-xl border border-red-100 bg-red-50 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-red-700">Отменить подписку</div>
+              <div className="text-xs text-red-400 mt-0.5">Доступ сохранится до конца оплаченного периода</div>
+            </div>
+            <Button variant="outline" size="sm" className="border-red-200 text-red-500 hover:bg-red-100 text-xs shrink-0">
+              Отменить
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     if (activeMenu === "subscriptions") {
       const plans = [
         {
@@ -373,7 +463,7 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
               <div className="text-sm font-medium text-[#1a1a2e]">Управление платежами</div>
               <div className="text-xs text-[#6b7280] mt-0.5">История оплат, смена карты, отмена подписки</div>
             </div>
-            <Button variant="ghost" size="sm" className="text-[#6b7280] hover:text-[#1a1a2e] gap-1.5">
+            <Button variant="ghost" size="sm" onClick={() => setShowPayments(true)} className="text-[#6b7280] hover:text-[#1a1a2e] gap-1.5">
               <Icon name="ChevronRight" size={16} />
               Открыть
             </Button>
