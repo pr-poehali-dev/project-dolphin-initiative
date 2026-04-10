@@ -251,6 +251,137 @@ const SettingsPage = ({ onClose }: { onClose: () => void }) => {
   });
 
   const renderContent = () => {
+    if (activeMenu === "subscriptions") {
+      const plans = [
+        {
+          id: "free",
+          name: "Бесплатный",
+          price: "0 ₽",
+          period: "навсегда",
+          active: false,
+          color: "#6b7280",
+          bg: "#f9fafb",
+          border: "#e5e7eb",
+          features: ["До 5 проектов", "Базовые шаблоны", "Экспорт PNG", "Поддержка через чат"],
+        },
+        {
+          id: "pro",
+          name: "Pro",
+          price: "690 ₽",
+          period: "в месяц",
+          active: true,
+          color: "#10A37F",
+          bg: "#e8f5f0",
+          border: "#10A37F",
+          features: ["Безлимитные проекты", "Все шаблоны", "Экспорт в любом формате", "Приоритетная поддержка", "Командная работа до 5 чел."],
+        },
+        {
+          id: "business",
+          name: "Бизнес",
+          price: "2 490 ₽",
+          period: "в месяц",
+          active: false,
+          color: "#7c3aed",
+          bg: "#f5f3ff",
+          border: "#7c3aed",
+          features: ["Всё из Pro", "Команда до 50 чел.", "Аналитика и отчёты", "Выделенный менеджер", "SLA 99.9%", "API доступ"],
+        },
+      ];
+
+      return (
+        <div className="flex-1 overflow-y-auto p-6 max-w-3xl">
+          {/* Статус */}
+          <div className="mb-8">
+            <h2 className="text-[#1a1a2e] font-bold text-xl mb-4">Подписки</h2>
+            <div className="flex items-center gap-4 p-5 bg-[#e8f5f0] rounded-2xl border border-[#10A37F]/30">
+              <div className="w-14 h-14 bg-[#10A37F] rounded-xl flex items-center justify-center shrink-0">
+                <Icon name="Zap" size={26} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[#1a1a2e] font-bold text-lg">Pro</span>
+                  <span className="bg-[#10A37F] text-white text-xs font-semibold px-2 py-0.5 rounded-full">Активна</span>
+                </div>
+                <p className="text-[#374151] text-sm">Следующее списание — <span className="font-medium text-[#1a1a2e]">15 мая 2026</span></p>
+              </div>
+              <Button size="sm" variant="outline" className="border-[#10A37F] text-[#10A37F] hover:bg-white shrink-0">
+                Продлить
+              </Button>
+            </div>
+          </div>
+
+          {/* Карточки планов */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {plans.map((plan) => (
+              <div
+                key={plan.id}
+                className="rounded-2xl border-2 p-5 flex flex-col transition-all"
+                style={{ borderColor: plan.border, background: plan.bg }}
+              >
+                {/* Шапка */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-bold text-[#1a1a2e] text-base">{plan.name}</span>
+                    {plan.active && (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: plan.color, color: "#fff" }}>
+                        Ваш план
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-end gap-1">
+                    <span className="text-3xl font-extrabold" style={{ color: plan.color }}>{plan.price}</span>
+                    <span className="text-[#6b7280] text-sm mb-1">{plan.period}</span>
+                  </div>
+                </div>
+
+                {/* Список преимуществ */}
+                <ul className="space-y-2 flex-1 mb-5">
+                  {plan.features.map((f, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#374151]">
+                      <span className="mt-0.5 shrink-0" style={{ color: plan.color }}>✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Кнопка */}
+                {plan.active ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    style={{ borderColor: plan.color, color: plan.color }}
+                  >
+                    Текущий план
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="w-full text-white"
+                    style={{ background: plan.color }}
+                  >
+                    {plan.id === "free" ? "Перейти" : "Подключить"}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Управление */}
+          <div className="mt-6 p-4 bg-[#f9fafb] rounded-xl border border-[#e5e7eb] flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-[#1a1a2e]">Управление платежами</div>
+              <div className="text-xs text-[#6b7280] mt-0.5">История оплат, смена карты, отмена подписки</div>
+            </div>
+            <Button variant="ghost" size="sm" className="text-[#6b7280] hover:text-[#1a1a2e] gap-1.5">
+              <Icon name="ChevronRight" size={16} />
+              Открыть
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     if (activeMenu !== "myProfile") {
       return (
         <div className="flex-1 flex items-center justify-center p-8">
